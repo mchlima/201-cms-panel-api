@@ -1,0 +1,11 @@
+services:
+  201-cms-panel-api:
+    user: 'docker'
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: 201-cms-panel-api
+    container_name: 201-cms-panel-api
+    restart: unless-stopped
+    ports:
+      - '9006:9006'
