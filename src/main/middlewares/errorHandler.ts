@@ -44,8 +44,7 @@ function formatGenericError(err: any): HttpResponse {
     statusCode: 500,
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message:
-        'Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde.',
+      message: 'An internal server error occurred.',
     },
   };
 }
