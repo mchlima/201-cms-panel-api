@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rimraf dist && npx tsc && tsc-alias -p tsconfig.json",
     "start": "node --env-file=.env dist/server.js",
-    "dev": "ts-node-dev --env-file=.env --respawn --transpile-only --require tsconfig-paths/register src/server.ts",
+    "dev": "ts-node-dev --env-file=.env --respawn --transpile-only --require tsconfig-paths/register src/main/server.ts",
     "format": "npx prettier --write .",
     "format:check": "npx prettier --check .",
     "test": "jest"
