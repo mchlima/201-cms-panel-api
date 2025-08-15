@@ -1,7 +1,22 @@
 import { Logger } from '@/shared/utils/Logger';
 import { HttpResponse } from '@/presentation/protocols';
-import { AppError, CriticalError } from '@/presentation/errors';
+import {
+  AppError,
+  CriticalError,
+  ZodValidationError,
+} from '@/presentation/errors';
 import { Request, Response, NextFunction } from 'express';
+
+function formatValidationError(err: ZodValidationError): HttpResponse {
+  return {
+    statusCode: 400,
+    error: {
+      code: 'VALIDATION_ERROR',
+      message: 'Validation failed',
+      details: err.details,
+    },
+  };
+}
 
 function formatAppError(err: AppError): HttpResponse {
   return {
@@ -47,6 +62,8 @@ export async function errorHandler(
     httpResponse = formatCriticalError(err);
   } else if (err instanceof AppError) {
     httpResponse = formatAppError(err);
+  } else if (err instanceof ZodValidationError) {
+    httpResponse = formatValidationError(err);
   } else {
     httpResponse = formatGenericError(err);
   }
