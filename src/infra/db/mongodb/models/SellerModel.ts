@@ -17,7 +17,6 @@ const sellerSchema = new Schema(
       type: String,
       enum: ['active', 'inactive', 'cancelled'],
       required: true,
-      index: true,
     },
   },
   {

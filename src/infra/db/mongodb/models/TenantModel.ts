@@ -5,7 +5,6 @@ const tenantSchema = new Schema(
   {
     sellerId: {
       type: Schema.Types.ObjectId,
-      index: true,
       required: false,
       ref: 'Seller',
     },
@@ -16,7 +15,6 @@ const tenantSchema = new Schema(
       type: String,
       enum: ['inactive', 'active', 'cancelled'],
       required: true,
-      index: true,
     },
     statusReason: { type: String },
   },
@@ -28,5 +26,7 @@ const tenantSchema = new Schema(
 
 tenantSchema.index({ createdAt: -1 });
 tenantSchema.index({ sellerId: 1, status: 1 });
+tenantSchema.index({ status: 1 });
+tenantSchema.index({ sellerId: 1 });
 
 export const TenantModel = model<Tenant>('Tenant', tenantSchema);
