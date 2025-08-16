@@ -1,6 +1,6 @@
 import { Tenant, TenantStatus } from '@/domain/models/tenant';
 
-type CreateTenantDTO = {
+export type CreateTenantDTO = {
   sellerId: string;
   name: string;
   slug: string;
