@@ -2,10 +2,10 @@ import { UseCase } from '../';
 import { User } from '@/domain/models/user';
 
 export type RegisterUserDTO = {
-  sellerId: string;
   tenant: {
     name: string;
     slug: string;
+    sellerId: string;
   };
   user: {
     name: string;
