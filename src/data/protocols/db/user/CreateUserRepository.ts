@@ -1,6 +1,6 @@
 import { User, UserRole } from '@/domain/models/user';
 
-type CreateUserDTO = {
+export type CreateUserDTO = {
   tenantId: string;
   name: string;
   email: string;
