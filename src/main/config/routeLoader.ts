@@ -27,7 +27,7 @@ export function loadRoutes(app: Express) {
       const routePrefix = prefix || '/';
       app.use(routePrefix, route);
 
-      Logger.info(`[route] ${routePrefix}`);
+      Logger.debug(`[route] ${routePrefix}`);
     } catch (err) {
       Logger.warn(err, `[route] ${file}`);
     }
