@@ -5,5 +5,5 @@ export type GetUserByEmailDTO = {
 };
 
 export interface GetUserByEmailRepository {
-  get(data: GetUserByEmailDTO): Promise<User>;
+  getByEmail(data: GetUserByEmailDTO): Promise<User | null>;
 }
