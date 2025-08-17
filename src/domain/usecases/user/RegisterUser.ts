@@ -5,7 +5,7 @@ export type RegisterUserDTO = {
   tenant: {
     name: string;
     slug: string;
-    sellerId: string;
+    sellerId?: string;
   };
   user: {
     name: string;
