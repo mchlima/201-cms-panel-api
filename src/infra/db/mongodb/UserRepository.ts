@@ -5,6 +5,8 @@ import {
   CheckIfUserExistsDTO,
   GetUserByEmailWithPasswordHashRepository,
   GetUserByEmailWithPasswordHashDTO,
+  GetUserByEmailRepository,
+  GetUserByEmailDTO,
 } from '@/data/protocols/db/user';
 import { UserModel } from './models';
 import { User } from '@/domain/models/user';
@@ -13,7 +15,8 @@ export class UserRepository
   implements
     CreateUserRepository,
     CheckIfUserExistsRepository,
-    GetUserByEmailWithPasswordHashRepository
+    GetUserByEmailWithPasswordHashRepository,
+    GetUserByEmailRepository
 {
   async create(data: CreateUserDTO): Promise<User> {
     const user = new UserModel(data);
@@ -32,6 +35,11 @@ export class UserRepository
     const user = await UserModel.findOne({ email: data.email }).select(
       '+passwordHash'
     );
+    return user ? (user.toObject() as User) : null;
+  }
+
+  async getByEmail(data: GetUserByEmailDTO): Promise<User | null> {
+    const user = await UserModel.findOne({ email: data.email });
     return user ? (user.toObject() as User) : null;
   }
 }
