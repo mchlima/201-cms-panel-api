@@ -7,10 +7,10 @@ import { registerUserSchema } from '@/schemas/user';
 const router = Router();
 
 router.post(
-  '/me',
+  '/register',
   validate(registerUserSchema),
   expressControllerAdapter(RegisterUserControllerFactory.create())
 );
 
-export const prefix = '/users';
+export const prefix = '/user';
 export default router;

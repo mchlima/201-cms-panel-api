@@ -24,20 +24,23 @@ export class RegisterUserUseCase implements RegisterUser {
       email: userDataWithoutPassword.email,
     });
 
-    if (!userExists) throw new BadRequestError('EMAIL_ALREADY_EXISTS');
+    if (userExists) throw new BadRequestError('EMAIL_ALREADY_EXISTS');
 
-    const passwordHash = await this.hasher.hash(password);
+    const hash = await this.hasher.hash(password);
 
     const tenant = await this.createTenantRepository.create({
       ...tenantData,
       status: 'active',
     });
 
-    return this.createUserRepository.create({
-      ...userDataWithoutPassword,
-      tenantId: tenant._id!,
-      passwordHash,
-      role: 'admin',
-    });
+    const { passwordHash, ...createdUser } =
+      await this.createUserRepository.create({
+        ...userDataWithoutPassword,
+        tenantId: tenant._id!,
+        passwordHash: hash,
+        role: 'admin',
+      });
+
+    return createdUser;
   }
 }

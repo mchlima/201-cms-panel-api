@@ -6,7 +6,7 @@ const userSchema = new Schema(
     tenantId: { type: Schema.Types.ObjectId, required: true, ref: 'Tenant' },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ['admin', 'editor', 'viewer'], required: true },
   },
   {
