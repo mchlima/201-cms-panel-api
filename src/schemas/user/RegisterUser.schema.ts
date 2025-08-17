@@ -4,7 +4,7 @@ export const registerUserSchema = z.object({
   tenant: z.object({
     name: z.string(),
     slug: z.string(),
-    sellerId: z.string(),
+    sellerId: z.string().optional(),
   }),
   user: z.object({
     name: z.string(),
