@@ -3,7 +3,9 @@ export interface HttpRequest<T = any> {
   params?: any;
   query?: any;
   headers?: any;
-  payload?: any;
+  payload?: {
+    userId: string;
+  };
   user?: any;
 }
 

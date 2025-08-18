@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   '/signin',
   validate(signInUserSchema),
-  expressControllerAdapter(SignInUserControllerFactory.create())
+  expressControllerAdapter(SignInUserControllerFactory.make())
 );
 
 export const prefix = '/auth';

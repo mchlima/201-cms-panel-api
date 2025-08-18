@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   '/',
   validate(testSchema),
-  expressControllerAdapter(HealthControllerFactory.create())
+  expressControllerAdapter(HealthControllerFactory.make())
 );
 
 export const prefix = '/health';

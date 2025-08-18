@@ -6,7 +6,7 @@ import { SignInUserController } from '@/presentation/controllers/user';
 import { Controller } from '@/presentation/protocols';
 
 export class SignInUserControllerFactory {
-  static create(): Controller {
+  static make(): Controller {
     const jwt = new JwtAdapter(process.env.JWT_SECRET!);
     const bcrypt = new BcryptAdapter();
     const userRepository = new UserRepository();
