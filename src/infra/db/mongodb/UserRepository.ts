@@ -4,6 +4,7 @@ import {
   GetUserByEmailRepository,
   CheckIfUserExistsByEmailRepository,
   GetUserByIdRepository,
+  UpdateUserByIdRepository,
 } from '@/data/protocols/db/user';
 import { UserModel } from './models';
 import { User } from '@/domain/models/user';
@@ -13,7 +14,8 @@ export class UserRepository
     CreateUserRepository,
     CheckIfUserExistsByEmailRepository,
     GetUserByEmailRepository,
-    GetUserByIdRepository
+    GetUserByIdRepository,
+    UpdateUserByIdRepository
 {
   async create(data: CreateUserDTO): Promise<User> {
     const user = new UserModel(data);
@@ -54,5 +56,18 @@ export class UserRepository
     const user = await userModel.exec();
 
     return user ? (user.toObject() as User) : null;
+  }
+
+  async updateById(
+    userId: string,
+    userData: { name: string }
+  ): Promise<User | null> {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { $set: userData },
+      { new: true }
+    );
+
+    return updatedUser ? (updatedUser.toObject() as User) : null;
   }
 }

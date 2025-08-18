@@ -4,6 +4,7 @@ import { validate } from '../middlewares/validate';
 import {
   GetCurrentUserControllerFactory,
   RegisterUserControllerFactory,
+  UpdateCurrentUserControllerFactory,
 } from '../factories/controllers/user';
 import { registerUserSchema } from '@/schemas/user';
 import { AuthMiddlewareFactory } from '../factories/middlewares';
@@ -21,6 +22,12 @@ router.get(
   '/me',
   auth,
   expressControllerAdapter(GetCurrentUserControllerFactory.make())
+);
+
+router.put(
+  '/me',
+  auth,
+  expressControllerAdapter(UpdateCurrentUserControllerFactory.make())
 );
 
 export const prefix = '/user';
