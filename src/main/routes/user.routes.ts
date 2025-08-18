@@ -5,9 +5,11 @@ import {
   GetCurrentUserControllerFactory,
   RegisterUserControllerFactory,
   UpdateCurrentUserControllerFactory,
+  UploadCurrentUserAvatarControllerFactory,
 } from '../factories/controllers/user';
 import { registerUserSchema, updateCurrentUserSchema } from '@/schemas/user';
 import { AuthMiddlewareFactory } from '../factories/middlewares';
+import { uploadMiddleware } from '@/presentation/middlewares';
 
 const router = Router();
 const auth = AuthMiddlewareFactory.make();
@@ -29,6 +31,19 @@ router.put(
   auth,
   validate(updateCurrentUserSchema),
   expressControllerAdapter(UpdateCurrentUserControllerFactory.make())
+);
+
+router.put(
+  '/me/avatar',
+  auth,
+  uploadMiddleware('file', [
+    'image/webp',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/avif',
+  ]),
+  expressControllerAdapter(UploadCurrentUserAvatarControllerFactory.make())
 );
 
 export const prefix = '/user';

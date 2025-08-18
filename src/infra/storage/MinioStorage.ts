@@ -15,17 +15,21 @@ import {
   UploadDTO,
 } from '@/data/protocols/storage';
 import { Readable } from 'stream';
+import { CriticalError, NotFoundError } from '@/presentation/errors';
 
 export class MinioStorage implements Storage {
   private client: S3Client;
   private endpoint: string;
+  private bucket: string;
 
   constructor(config: {
+    bucket: string;
     endpoint: string;
     accessKeyId: string;
     secretAccessKey: string;
     region?: string;
   }) {
+    this.bucket = config.bucket;
     this.client = new S3Client({
       endpoint: config.endpoint,
       credentials: {
@@ -39,16 +43,10 @@ export class MinioStorage implements Storage {
     this.endpoint = config.endpoint;
   }
 
-  async upload({
-    bucket,
-    key,
-    body,
-    contentType,
-    isPublic,
-  }: UploadDTO): Promise<void> {
+  async upload({ key, body, contentType, isPublic }: UploadDTO): Promise<void> {
     await this.client.send(
       new PutObjectCommand({
-        Bucket: bucket,
+        Bucket: this.bucket,
         Key: key,
         Body: body,
         ContentType: contentType,
@@ -57,9 +55,9 @@ export class MinioStorage implements Storage {
     );
   }
 
-  async download({ bucket, key }: DownloadDTO): Promise<Buffer> {
+  async download({ key }: DownloadDTO): Promise<Buffer> {
     const response = await this.client.send(
-      new GetObjectCommand({ Bucket: bucket, Key: key })
+      new GetObjectCommand({ Bucket: this.bucket, Key: key })
     );
 
     if (response.Body instanceof Readable) {
@@ -70,27 +68,31 @@ export class MinioStorage implements Storage {
       return Buffer.concat(chunks);
     }
 
+    if (!response.Body) {
+      throw new NotFoundError('OBJECT_NOT_FOUND');
+    }
+
     if (response.Body instanceof Uint8Array) {
       return Buffer.from(response.Body);
     }
 
-    throw new Error(`Unsupported response body type: ${typeof response.Body}`);
+    throw new CriticalError('STORAGE_BODY_UNSUPPORTED_TYPE');
   }
 
-  async delete({ bucket, key }: DeleteDTO): Promise<void> {
+  async delete({ key }: DeleteDTO): Promise<void> {
     await this.client.send(
-      new DeleteObjectCommand({ Bucket: bucket, Key: key })
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: key })
     );
   }
 
-  async list({ bucket, prefix }: ListDTO): Promise<string[]> {
+  async list({ prefix }: ListDTO): Promise<string[]> {
     let continuationToken: string | undefined;
     const keys: string[] = [];
 
     do {
       const response = await this.client.send(
         new ListObjectsV2Command({
-          Bucket: bucket,
+          Bucket: this.bucket,
           Prefix: prefix,
           ContinuationToken: continuationToken,
         })
@@ -109,7 +111,7 @@ export class MinioStorage implements Storage {
     return keys;
   }
 
-  makePublicUrl({ bucket, key }: MakePublicUrlDTO): string {
-    return `${this.endpoint}/${bucket}/${key}`;
+  makePublicUrl({ key }: MakePublicUrlDTO): string {
+    return `${this.endpoint}/${this.bucket}/${key}`;
   }
 }

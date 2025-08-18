@@ -10,7 +10,11 @@ export interface HttpRequest<T = any> {
     userRole: UserRole;
     tenantId: string;
   };
-  user?: any;
+  file?: {
+    buffer: Buffer | null;
+    mimetype: string | null;
+    originalName: string | null;
+  };
 }
 
 export interface HttpResponse<R = any> {

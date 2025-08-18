@@ -5,6 +5,14 @@ export type User = {
   tenantId: string;
   name: string;
   email: string;
+  avatar: {
+    urls: {
+      original: string;
+      small: string;
+      medium: string;
+      large: string;
+    };
+  };
   passwordHash?: string;
   role: UserRole;
   createdAt?: Date;

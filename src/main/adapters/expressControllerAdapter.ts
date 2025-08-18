@@ -10,6 +10,11 @@ export const expressControllerAdapter = (controller: Controller) => {
         query: req.query || {},
         headers: req.headers || {},
         payload: req.payload || {},
+        file: {
+          buffer: req.file?.buffer || null,
+          mimetype: req.file?.mimetype || null,
+          originalName: req.file?.originalname || null,
+        },
       };
 
       const httpResponse = await controller.handle(httpRequest);
