@@ -1,4 +1,4 @@
-import { GetUserByIdUseCase, SignInUserUseCase } from '@/data/usecases/user';
+import { GetUserByIdUseCase } from '@/data/usecases/user';
 import { UserRepository } from '@/infra/db/mongodb';
 import { GetCurrentUserController } from '@/presentation/controllers/user';
 import { Controller } from '@/presentation/protocols';

@@ -1,1 +1,2 @@
-export * from './GetTenantById';
+export * from './GetTenantByIdUseCase';
+export * from './UpdateTenantByIdUseCase';

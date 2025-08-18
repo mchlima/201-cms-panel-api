@@ -6,7 +6,7 @@ import {
   RegisterUserControllerFactory,
   UpdateCurrentUserControllerFactory,
 } from '../factories/controllers/user';
-import { registerUserSchema } from '@/schemas/user';
+import { registerUserSchema, updateCurrentUserSchema } from '@/schemas/user';
 import { AuthMiddlewareFactory } from '../factories/middlewares';
 
 const router = Router();
@@ -27,6 +27,7 @@ router.get(
 router.put(
   '/me',
   auth,
+  validate(updateCurrentUserSchema),
   expressControllerAdapter(UpdateCurrentUserControllerFactory.make())
 );
 
