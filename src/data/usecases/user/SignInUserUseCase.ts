@@ -28,6 +28,7 @@ export class SignInUserUseCase implements SignInUser {
     const accessToken = await this.encrypter.encrypt({
       userId: user._id,
       userRole: user.role,
+      tenantId: user.tenantId,
     });
 
     return accessToken;
