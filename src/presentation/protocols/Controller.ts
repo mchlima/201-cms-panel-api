@@ -1,3 +1,5 @@
+import { UserRole } from '@/domain/models/user';
+
 export interface HttpRequest<T = any> {
   body?: T;
   params?: any;
@@ -5,6 +7,8 @@ export interface HttpRequest<T = any> {
   headers?: any;
   payload?: {
     userId: string;
+    userRole: UserRole;
+    tenantId: string;
   };
   user?: any;
 }
