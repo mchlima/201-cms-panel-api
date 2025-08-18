@@ -18,7 +18,6 @@ export function loadRoutes(app: Express) {
     try {
       const filePath = path.join(routesPath, file);
       const { default: route, prefix } = require(filePath);
-      console.log(routeFiles);
       if (!route) {
         Logger.warn(`[route] ${file} does not export a default route`);
         continue;
