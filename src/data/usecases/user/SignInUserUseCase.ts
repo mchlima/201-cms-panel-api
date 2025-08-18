@@ -25,7 +25,10 @@ export class SignInUserUseCase implements SignInUser {
 
     if (!isValid) throw new BadRequestError('INVALID_CREDENTIALS');
 
-    const accessToken = await this.encrypter.encrypt({ userId: user._id });
+    const accessToken = await this.encrypter.encrypt({
+      userId: user._id,
+      userRole: user.role,
+    });
 
     return accessToken;
   }
