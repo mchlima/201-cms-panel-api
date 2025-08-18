@@ -1,7 +1,3 @@
-export type CheckIfUserExistsDTO = {
-  email: string;
-};
-
-export interface CheckIfUserExistsRepository {
-  checkIfExists(data: CheckIfUserExistsDTO): Promise<boolean>;
+export interface CheckIfUserExistsByEmailRepository {
+  checkIfExistsByEmail(email: string): Promise<boolean>;
 }

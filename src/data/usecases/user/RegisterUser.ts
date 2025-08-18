@@ -1,6 +1,6 @@
 import { RegisterUser, RegisterUserDTO } from '@/domain/usecases/user';
 import {
-  CheckIfUserExistsRepository,
+  CheckIfUserExistsByEmailRepository,
   CreateUserRepository,
 } from '@/data/protocols/db/user';
 import { User } from '@/domain/models/user';
@@ -11,7 +11,7 @@ import { BadRequestError } from '@/presentation/errors';
 export class RegisterUserUseCase implements RegisterUser {
   constructor(
     private readonly createUserRepository: CreateUserRepository,
-    private readonly checkIfUserExistsRepository: CheckIfUserExistsRepository,
+    private readonly checkIfUserExistsByEmailRepository: CheckIfUserExistsByEmailRepository,
     private readonly hasher: Hasher,
     private readonly createTenantRepository: CreateTenantRepository
   ) {}
@@ -20,9 +20,10 @@ export class RegisterUserUseCase implements RegisterUser {
     const { password, ...userDataWithoutPassword } = data.user;
     const tenantData = data.tenant;
 
-    const userExists = await this.checkIfUserExistsRepository.checkIfExists({
-      email: userDataWithoutPassword.email,
-    });
+    const userExists =
+      await this.checkIfUserExistsByEmailRepository.checkIfExistsByEmail(
+        userDataWithoutPassword.email
+      );
 
     if (userExists) throw new BadRequestError('EMAIL_ALREADY_EXISTS');
 

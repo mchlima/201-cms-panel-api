@@ -1,9 +1,8 @@
 import {
   CreateUserRepository,
   CreateUserDTO,
-  CheckIfUserExistsRepository,
-  CheckIfUserExistsDTO,
   GetUserByEmailRepository,
+  CheckIfUserExistsByEmailRepository,
 } from '@/data/protocols/db/user';
 import { UserModel } from './models';
 import { User } from '@/domain/models/user';
@@ -11,7 +10,7 @@ import { User } from '@/domain/models/user';
 export class UserRepository
   implements
     CreateUserRepository,
-    CheckIfUserExistsRepository,
+    CheckIfUserExistsByEmailRepository,
     GetUserByEmailRepository
 {
   async create(data: CreateUserDTO): Promise<User> {
@@ -20,8 +19,8 @@ export class UserRepository
     return user.toObject();
   }
 
-  async checkIfExists(data: CheckIfUserExistsDTO): Promise<boolean> {
-    const exists = await UserModel.exists({ email: data.email });
+  async checkIfExistsByEmail(email: string): Promise<boolean> {
+    const exists = await UserModel.exists({ email });
     return !!exists;
   }
 
