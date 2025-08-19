@@ -4,6 +4,7 @@ import {
   GetTenantByIdRepository,
   UpdateTenantByIdRepository,
   UpdateTenantDataDTO,
+  UpdateTenantAvatarByIdRepository,
 } from '@/data/protocols/db/tenant';
 import { TenantModel } from './models';
 import { Tenant } from '@/domain/models/tenant';
@@ -12,7 +13,8 @@ export class TenantRepository
   implements
     CreateTenantRepository,
     GetTenantByIdRepository,
-    UpdateTenantByIdRepository
+    UpdateTenantByIdRepository,
+    UpdateTenantAvatarByIdRepository
 {
   async create(data: CreateTenantDTO): Promise<Tenant> {
     const tenant = new TenantModel(data);
@@ -33,5 +35,27 @@ export class TenantRepository
       new: true,
     });
     return tenant ? tenant.toObject() : null;
+  }
+
+  async updateAvatarById(
+    tenantId: string,
+    avatarData: {
+      avatar: {
+        urls: {
+          original: string;
+          small: string;
+          medium: string;
+          large: string;
+        };
+      };
+    }
+  ): Promise<Tenant | null> {
+    const updatedTenant = await TenantModel.findByIdAndUpdate(
+      tenantId,
+      { $set: avatarData },
+      { new: true }
+    );
+
+    return updatedTenant ? (updatedTenant.toObject() as Tenant) : null;
   }
 }

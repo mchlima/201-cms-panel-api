@@ -1,6 +1,23 @@
 import { Tenant } from '@/domain/models/tenant';
 import { Schema, model } from 'mongoose';
 
+const avatarUrlsSchema = new Schema(
+  {
+    original: { type: String, required: false, default: null },
+    small: { type: String, required: false, default: null },
+    medium: { type: String, required: false, default: null },
+    large: { type: String, required: false, default: null },
+  },
+  { _id: false }
+);
+
+const avatarSchema = new Schema(
+  {
+    urls: { type: avatarUrlsSchema, required: false, default: null },
+  },
+  { _id: false }
+);
+
 const tenantSchema = new Schema(
   {
     sellerId: {
@@ -10,7 +27,7 @@ const tenantSchema = new Schema(
     },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    logoUrl: { type: String },
+    avatar: { type: avatarSchema, required: false, default: null },
     status: {
       type: String,
       enum: ['inactive', 'active', 'cancelled'],

@@ -1,10 +1,10 @@
-import { UpdateUserAvatarByIdRepository } from '@/data/protocols/db/user';
+import { UpdateTenantAvatarByIdRepository } from '@/data/protocols/db/tenant';
 import { ImageProcessor } from '@/data/protocols/image';
-import { User } from '@/domain/models/user';
+import { Tenant } from '@/domain/models/tenant';
 import {
-  UpdateUserAvatarById,
-  UpdateUserAvatarByIdDTO,
-} from '@/domain/usecases/user';
+  UpdateTenantAvatarById,
+  UpdateTenantAvatarByIdDTO,
+} from '@/domain/usecases/tenant';
 import { MinioStorage } from '@/infra/storage/MinioStorage';
 import { BadRequestError } from '@/presentation/errors';
 
@@ -15,19 +15,19 @@ const AVATAR_SCALES = {
   small: 0.25,
 };
 
-export class UpdateUserAvatarByIdUseCase implements UpdateUserAvatarById {
+export class UpdateTenantAvatarByIdUseCase implements UpdateTenantAvatarById {
   constructor(
-    private readonly userRepository: UpdateUserAvatarByIdRepository,
+    private readonly tenantRepository: UpdateTenantAvatarByIdRepository,
     private readonly imageProcessor: ImageProcessor,
     private readonly storage: MinioStorage
   ) {}
 
   async execute({
-    userId,
+    tenantId,
     file,
     originalName,
     mimetype,
-  }: UpdateUserAvatarByIdDTO): Promise<User | null> {
+  }: UpdateTenantAvatarByIdDTO): Promise<Tenant | null> {
     const extension = originalName.split('.').pop()?.toLocaleLowerCase();
 
     if (!extension) throw new BadRequestError('IMAGE_EXTENSION_UNDEFINED');
@@ -42,7 +42,7 @@ export class UpdateUserAvatarByIdUseCase implements UpdateUserAvatarById {
 
     const metadata = await this.imageProcessor.metadata(file);
     const widthOriginal = metadata.width ?? 800;
-    let urls: User['avatar']['urls'] = {
+    let urls: Tenant['avatar']['urls'] = {
       original: '',
       large: '',
       medium: '',
@@ -65,8 +65,8 @@ export class UpdateUserAvatarByIdUseCase implements UpdateUserAvatarById {
           quality: 50,
         });
 
-      const fileName = `${typedLabel}-${userId}.${outputFormat}`;
-      const key = `avatars/users/${userId}/${fileName}`;
+      const fileName = `${typedLabel}-${tenantId}.${outputFormat}`;
+      const key = `avatars/tenants/${tenantId}/${fileName}`;
 
       await this.storage.upload({
         key,
@@ -78,7 +78,7 @@ export class UpdateUserAvatarByIdUseCase implements UpdateUserAvatarById {
       urls[typedLabel] = this.storage.makePublicUrl({ key });
     }
 
-    return this.userRepository.updateAvatarById(userId, {
+    return this.tenantRepository.updateAvatarById(tenantId, {
       avatar: { urls },
     });
   }

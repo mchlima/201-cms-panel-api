@@ -5,7 +5,14 @@ export type Tenant = {
   sellerId?: string;
   name: string;
   slug: string;
-  logoUrl?: string;
+  avatar: {
+    urls: {
+      original: string;
+      small: string;
+      medium: string;
+      large: string;
+    };
+  };
   status: TenantStatus;
   statusReason?: string;
   createdAt?: Date;
