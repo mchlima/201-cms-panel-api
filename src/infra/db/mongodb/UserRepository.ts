@@ -75,20 +75,11 @@ export class UserRepository
 
   async updateAvatarById(
     userId: string,
-    avatarData: {
-      avatar: {
-        urls: {
-          original: string;
-          small: string;
-          medium: string;
-          large: string;
-        };
-      };
-    }
+    avatarData: { variants: { size: string; url: string }[] }
   ): Promise<User | null> {
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
-      { $set: avatarData },
+      { $set: { avatar: avatarData } },
       { new: true }
     );
 

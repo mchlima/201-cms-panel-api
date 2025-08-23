@@ -39,20 +39,11 @@ export class TenantRepository
 
   async updateAvatarById(
     tenantId: string,
-    avatarData: {
-      avatar: {
-        urls: {
-          original: string;
-          small: string;
-          medium: string;
-          large: string;
-        };
-      };
-    }
+    avatarData: { variants: { size: string; url: string }[] }
   ): Promise<Tenant | null> {
     const updatedTenant = await TenantModel.findByIdAndUpdate(
       tenantId,
-      { $set: avatarData },
+      { $set: { avatar: avatarData } },
       { new: true }
     );
 

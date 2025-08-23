@@ -8,12 +8,12 @@ import {
 import { MinioStorage } from '@/infra/storage/MinioStorage';
 import { BadRequestError } from '@/presentation/errors';
 
-const AVATAR_SCALES = {
-  original: 1,
-  large: 0.75,
-  medium: 0.5,
-  small: 0.25,
-};
+const SCALES = [
+  { label: 'original', factor: 1 },
+  { label: 'large', factor: 0.75 },
+  { label: 'medium', factor: 0.5 },
+  { label: 'small', factor: 0.25 },
+];
 
 export class UpdateUserAvatarByIdUseCase implements UpdateUserAvatarById {
   constructor(
@@ -38,48 +38,42 @@ export class UpdateUserAvatarByIdUseCase implements UpdateUserAvatarById {
       outputFormat = 'webp';
     } else if (['gif', 'avif'].includes(extension)) {
       outputFormat = 'avif';
+    } else {
+      throw new BadRequestError('IMAGE_EXTENSION_NOT_SUPPORTED');
     }
 
     const metadata = await this.imageProcessor.metadata(file);
     const widthOriginal = metadata.width ?? 800;
-    let urls: User['avatar']['urls'] = {
-      original: '',
-      large: '',
-      medium: '',
-      small: '',
-    };
+    let variants = [];
 
-    for (const [label, factor] of Object.entries(AVATAR_SCALES)) {
-      const typedLabel = label as keyof typeof AVATAR_SCALES;
+    for (const { label, factor } of SCALES) {
       const width = Math.round(widthOriginal * factor);
 
-      let image: Buffer = await this.imageProcessor.resize(file, { width });
-      if (outputFormat === 'webp')
-        image = await this.imageProcessor.convert(image, {
-          format: 'webp',
-          quality: 80,
-        });
-      else if (outputFormat === 'avif')
-        image = await this.imageProcessor.convert(image, {
-          format: 'avif',
-          quality: 50,
-        });
+      await this.imageProcessor.setImage(file);
+      await this.imageProcessor.resize({ width });
+      await this.imageProcessor.convert({
+        format: outputFormat,
+        quality: 80,
+      });
 
-      const fileName = `${typedLabel}-${userId}.${outputFormat}`;
+      const fileName = `${label}-${userId}.${outputFormat}`;
       const key = `avatars/users/${userId}/${fileName}`;
 
       await this.storage.upload({
         key,
-        body: image,
+        body: this.imageProcessor.getImage()!,
         contentType: `image/${outputFormat}`,
         isPublic: true,
       });
 
-      urls[typedLabel] = this.storage.makePublicUrl({ key });
+      variants.push({
+        size: label,
+        url: this.storage.makePublicUrl({ key }),
+      });
     }
 
     return this.userRepository.updateAvatarById(userId, {
-      avatar: { urls },
-    });
+      variants,
+    } as User['avatar']);
   }
 }

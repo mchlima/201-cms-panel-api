@@ -6,12 +6,7 @@ export type User = {
   name: string;
   email: string;
   avatar: {
-    urls: {
-      original: string;
-      small: string;
-      medium: string;
-      large: string;
-    };
+    variants: [{ size: string; url: string }];
   };
   passwordHash?: string;
   role: UserRole;

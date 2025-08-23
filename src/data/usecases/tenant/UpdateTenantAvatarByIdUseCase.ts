@@ -1,23 +1,21 @@
 import { UpdateTenantAvatarByIdRepository } from '@/data/protocols/db/tenant';
 import { ImageProcessor } from '@/data/protocols/image';
 import { Tenant } from '@/domain/models/tenant';
-import {
-  UpdateTenantAvatarById,
-  UpdateTenantAvatarByIdDTO,
-} from '@/domain/usecases/tenant';
+import { UpdateTenantAvatarById } from '@/domain/usecases/tenant';
+import { UpdateTenantAvatarByIdDTO } from '@/domain/usecases/tenant';
 import { MinioStorage } from '@/infra/storage/MinioStorage';
 import { BadRequestError } from '@/presentation/errors';
 
-const AVATAR_SCALES = {
-  original: 1,
-  large: 0.75,
-  medium: 0.5,
-  small: 0.25,
-};
+const SCALES = [
+  { label: 'original', factor: 1 },
+  { label: 'large', factor: 0.75 },
+  { label: 'medium', factor: 0.5 },
+  { label: 'small', factor: 0.25 },
+];
 
 export class UpdateTenantAvatarByIdUseCase implements UpdateTenantAvatarById {
   constructor(
-    private readonly tenantRepository: UpdateTenantAvatarByIdRepository,
+    private readonly userRepository: UpdateTenantAvatarByIdRepository,
     private readonly imageProcessor: ImageProcessor,
     private readonly storage: MinioStorage
   ) {}
@@ -38,48 +36,42 @@ export class UpdateTenantAvatarByIdUseCase implements UpdateTenantAvatarById {
       outputFormat = 'webp';
     } else if (['gif', 'avif'].includes(extension)) {
       outputFormat = 'avif';
+    } else {
+      throw new BadRequestError('IMAGE_EXTENSION_NOT_SUPPORTED');
     }
 
     const metadata = await this.imageProcessor.metadata(file);
     const widthOriginal = metadata.width ?? 800;
-    let urls: Tenant['avatar']['urls'] = {
-      original: '',
-      large: '',
-      medium: '',
-      small: '',
-    };
+    let variants = [];
 
-    for (const [label, factor] of Object.entries(AVATAR_SCALES)) {
-      const typedLabel = label as keyof typeof AVATAR_SCALES;
+    for (const { label, factor } of SCALES) {
       const width = Math.round(widthOriginal * factor);
 
-      let image: Buffer = await this.imageProcessor.resize(file, { width });
-      if (outputFormat === 'webp')
-        image = await this.imageProcessor.convert(image, {
-          format: 'webp',
-          quality: 80,
-        });
-      else if (outputFormat === 'avif')
-        image = await this.imageProcessor.convert(image, {
-          format: 'avif',
-          quality: 50,
-        });
+      await this.imageProcessor.setImage(file);
+      await this.imageProcessor.resize({ width });
+      await this.imageProcessor.convert({
+        format: outputFormat,
+        quality: 80,
+      });
 
-      const fileName = `${typedLabel}-${tenantId}.${outputFormat}`;
+      const fileName = `${label}-${tenantId}.${outputFormat}`;
       const key = `avatars/tenants/${tenantId}/${fileName}`;
 
       await this.storage.upload({
         key,
-        body: image,
+        body: this.imageProcessor.getImage()!,
         contentType: `image/${outputFormat}`,
         isPublic: true,
       });
 
-      urls[typedLabel] = this.storage.makePublicUrl({ key });
+      variants.push({
+        size: label,
+        url: this.storage.makePublicUrl({ key }),
+      });
     }
 
-    return this.tenantRepository.updateAvatarById(tenantId, {
-      avatar: { urls },
-    });
+    return this.userRepository.updateAvatarById(tenantId, {
+      variants,
+    } as Tenant['avatar']);
   }
 }

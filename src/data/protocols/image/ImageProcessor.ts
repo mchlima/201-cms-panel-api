@@ -10,8 +10,10 @@ export type ConvertOptions = {
 };
 
 export interface ImageProcessor {
-  resize(image: Buffer, options: ResizeOptions): Promise<Buffer>;
-  convert(image: Buffer, options: ConvertOptions): Promise<Buffer>;
+  setImage(image: Buffer): void;
+  resize(options: ResizeOptions): Promise<ImageProcessor>;
+  convert(options: ConvertOptions): Promise<ImageProcessor>;
+  getImage(): Buffer | null;
   metadata(
     image: Buffer
   ): Promise<{ width?: number; height?: number; format?: string }>;

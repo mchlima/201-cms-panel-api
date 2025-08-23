@@ -6,12 +6,7 @@ export type Tenant = {
   name: string;
   slug: string;
   avatar: {
-    urls: {
-      original: string;
-      small: string;
-      medium: string;
-      large: string;
-    };
+    variants: [{ size: string; url: string }];
   };
   status: TenantStatus;
   statusReason?: string;

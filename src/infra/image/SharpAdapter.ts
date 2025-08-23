@@ -6,15 +6,21 @@ import {
 } from '@/data/protocols/image';
 
 export class SharpAdapter implements ImageProcessor {
-  async resize(image: Buffer, options: ResizeOptions): Promise<Buffer> {
+  private image: Buffer | null = null;
+
+  async resize(options: ResizeOptions): Promise<SharpAdapter> {
+    if (!this.image) throw new Error('Image not set');
     const { width, height, fit = 'inside' } = options;
-    return sharp(image).resize({ width, height, fit }).toBuffer();
+    this.image = await sharp(this.image)
+      .resize({ width, height, fit })
+      .toBuffer();
+    return this;
   }
 
-  async convert(image: Buffer, options: ConvertOptions): Promise<Buffer> {
+  async convert(options: ConvertOptions): Promise<SharpAdapter> {
+    if (!this.image) throw new Error('Image not set');
     const { format, quality = 80 } = options;
-
-    let img = sharp(image);
+    let img = sharp(this.image);
     switch (format) {
       case 'webp':
         img = img.webp({ quality });
@@ -32,7 +38,17 @@ export class SharpAdapter implements ImageProcessor {
         throw new Error(`Unsupported format: ${format}`);
     }
 
-    return img.toBuffer();
+    this.image = await img.toBuffer();
+
+    return this;
+  }
+
+  setImage(image: Buffer): void {
+    this.image = image;
+  }
+
+  getImage(): Buffer | null {
+    return this.image;
   }
 
   async metadata(
